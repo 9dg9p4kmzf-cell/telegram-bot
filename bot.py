@@ -2,6 +2,7 @@ import os
 
 from fastapi import FastAPI, Request
 from aiogram import Bot, Dispatcher
+from aiogram.filters import CommandStart
 from aiogram.types import (
     Update,
     Message,
@@ -9,8 +10,6 @@ from aiogram.types import (
     InlineKeyboardButton,
     InlineKeyboardMarkup,
 )
-from aiogram.filters import CommandStart
-
 
 # ==========================================
 # 設定
@@ -25,14 +24,21 @@ PRODUCT_PRICE = 4000
 
 
 # ==========================================
-# Bot
-# ==========================================
+# 設定
 
-if not BOT_TOKEN: "8807013382:AAE_ajvbvIIMgh34ue7skgRUvy5gNRRxtH0"
+if not BOT_TOKEN: "8807013382:AAFxQzoFHFHOIRbsJv1oATwTMRH6oj5b70k"
     raise RuntimeError("BOT_TOKEN が設定されていません")
 
-if ADMIN_ID == 0:6833171461
+if ADMIN_ID == 0: 6833171461
     raise RuntimeError("ADMIN_ID が設定されていません")
+
+if not RENDER_URL:
+    raise RuntimeError("RENDER_EXTERNAL_URL が設定されていません")
+
+
+# ==========================================
+# Bot
+# ==========================================
 
 bot = Bot(token=BOT_TOKEN)
 dp = Dispatcher()
@@ -69,7 +75,7 @@ async def start(message: Message):
 # 購入ボタン
 # ==========================================
 
-@dp.callback_query(lambda c: c.data == "buy")
+@dp.callback_query(lambda callback: callback.data == "buy")
 async def buy(callback: CallbackQuery):
 
     await callback.answer()
@@ -138,9 +144,9 @@ async def receive_paypay(message: Message):
 # ==========================================
 
 @dp.callback_query(
-    lambda c:
-    c.data is not None
-    and c.data.startswith("approve:")
+    lambda callback:
+    callback.data is not None
+    and callback.data.startswith("approve:")
 )
 async def approve(callback: CallbackQuery):
 
@@ -172,9 +178,9 @@ async def approve(callback: CallbackQuery):
 # ==========================================
 
 @dp.callback_query(
-    lambda c:
-    c.data is not None
-    and c.data.startswith("reject:")
+    lambda callback:
+    callback.data is not None
+    and callback.data.startswith("reject:")
 )
 async def reject(callback: CallbackQuery):
 
@@ -206,6 +212,7 @@ async def reject(callback: CallbackQuery):
 
 @app.get("/")
 async def home():
+
     return {
         "status": "online",
         "bot": "telegram-bot"
@@ -232,16 +239,11 @@ async def webhook(request: Request):
 
 
 # ==========================================
-# 起動時
+# 起動
 # ==========================================
 
 @app.on_event("startup")
 async def startup():
-
-    if not RENDER_URL:
-        raise RuntimeError(
-            "RENDER_EXTERNAL_URL が設定されていません"
-        )
 
     webhook_url = f"{RENDER_URL}/webhook"
 
@@ -250,18 +252,19 @@ async def startup():
         drop_pending_updates=True
     )
 
-    print("================================")
+    print("==============================")
     print("Telegram Bot Started")
     print(f"Webhook: {webhook_url}")
-    print("================================")
+    print("==============================")
 
 
 # ==========================================
-# 終了時
+# 終了
 # ==========================================
 
 @app.on_event("shutdown")
 async def shutdown():
 
     await bot.delete_webhook()
+
     await bot.session.close()

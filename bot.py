@@ -11,6 +11,7 @@ from aiogram.types import (
 )
 from aiogram.filters import CommandStart
 
+
 # ==========================================
 # 設定
 # ==========================================
@@ -22,12 +23,16 @@ RENDER_URL = os.getenv("RENDER_EXTERNAL_URL")
 PRODUCT_NAME = "商品"
 PRODUCT_PRICE = 4000
 
+
 # ==========================================
 # Bot
 # ==========================================
 
 if not BOT_TOKEN: "8807013382:AAE_ajvbvIIMgh34ue7skgRUvy5gNRRxtH0"
     raise RuntimeError("BOT_TOKEN が設定されていません")
+
+if ADMIN_ID == 0:6833171461
+    raise RuntimeError("ADMIN_ID が設定されていません")
 
 bot = Bot(token=BOT_TOKEN)
 dp = Dispatcher()
@@ -89,12 +94,6 @@ async def buy(callback: CallbackQuery):
     and "pay.paypay.ne.jp" in message.text
 )
 async def receive_paypay(message: Message):
-
-    if ADMIN_ID == 0:
-        await message.answer(
-            "管理者設定が完了していません。"
-        )
-        return
 
     username = (
         f"@{message.from_user.username}"
@@ -202,7 +201,7 @@ async def reject(callback: CallbackQuery):
 
 
 # ==========================================
-# Renderの確認用ページ
+# Render確認用
 # ==========================================
 
 @app.get("/")
@@ -239,11 +238,6 @@ async def webhook(request: Request):
 @app.on_event("startup")
 async def startup():
 
-    if ADMIN_ID == 0:
-        raise RuntimeError(
-            "ADMIN_ID が設定されていません"
-        )
-
     if not RENDER_URL:
         raise RuntimeError(
             "RENDER_EXTERNAL_URL が設定されていません"
@@ -270,5 +264,4 @@ async def startup():
 async def shutdown():
 
     await bot.delete_webhook()
-
     await bot.session.close()

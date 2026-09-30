@@ -12,7 +12,7 @@ import uvicorn
 # 設定
 # =========================
 
-BOT_TOKEN = os.getenv("BOT_TOKEN")
+BOT_TOKEN = os.getenv("8807013382:AAFxQzoFHFHOIRbsJv1oATwTMRH6oj5b70k")
 
 if not BOT_TOKEN:
     raise RuntimeError("BOT_TOKEN が設定されていません")
